@@ -90,11 +90,26 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password") || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now();
+  next();
+});
+
 userSchema.methods.comparePassword = async function (
   inputPassword,
   userPassword
 ) {
   return await bcrypt.compare(inputPassword, userPassword);
+};
+
+userSchema.methods.passwordChangedAfter = async function (iat) {
+  if (this.passwordChangedAt) {
+    const iatDate = new Date(iat * 1000);
+    return this.passwordChangedAt > iatDate;
+  }
+  return false;
 };
 
 const User = mongoose.model("User", userSchema);
