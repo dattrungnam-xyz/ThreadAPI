@@ -2,6 +2,8 @@ import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 
+import userRoute  from "./routes/userRoutes.js";
+
 // import errrorController from "./controllers/errorController.js";
 
 // import tourRoute from "./routes/tourRoutes.js";
@@ -22,7 +24,7 @@ app.use(
 );
 
 // app.use("/api/v1/tour", tourRoute);
-// app.use("/api/v1/user", userRoute);
+app.use("/api/v1/user", userRoute);
 
 // app.all("*", (req, res, next) => {
 //   next(new CustomError(`Can't find ${req.originalUrl} on this server!`, 404));
