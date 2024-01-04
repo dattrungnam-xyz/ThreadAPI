@@ -107,7 +107,7 @@ let authController = {
     let newPassword = req.body.newPassword;
     let passwordConfirm = req.body.passwordConfirm;
 
-    let user = await User.findById(req.user.id ).select("+password");
+    let user = await User.findById(req.user.id).select("+password");
     if (!(await user.comparePassword(password, user.password))) {
       return next(new AppError("Your current password is wrong.", 401));
     }
@@ -119,6 +119,7 @@ let authController = {
 
     authController.createAndSendToken(user, 200, req, res);
   },
+
 };
 
 export { authController };
