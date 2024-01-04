@@ -119,7 +119,6 @@ let authController = {
 
     authController.createAndSendToken(user, 200, req, res);
   },
-
 };
 
 export { authController };
