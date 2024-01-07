@@ -75,6 +75,8 @@ let authController = {
         passwordConfirm: req.body.passwordConfirm,
       });
 
+      user.password = undefined;
+
       return res.status(201).json({
         status: "success",
         data: {

@@ -79,6 +79,20 @@ const userSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  //dang yeu cau theo doi ai
+  followingRequest: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+    },
+  ],
+  // nguoi khac yeu cau theo doi
+  followerRequest: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "User",
+    },
+  ],
 });
 
 userSchema.pre("save", async function (next) {

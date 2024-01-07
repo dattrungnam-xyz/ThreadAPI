@@ -59,38 +59,101 @@ let userController = {
     });
   },
   follow: async function (req, res, next) {
-    let user = await User.findById(req.user.id);
-    let index = user.following.indexOf(req.body.idUser);
-    if (index != -1) {
+    let userRequest = await User.findById(req.user.id);
+    let userFollow = await User.findById(req.params.id);
+
+    let indexOfUserFollow = userRequest.following.indexOf(req.params.id);
+    let indexOfUserRequest = userFollow.followers.indexOf(req.user.id);
+
+    if (indexOfUserFollow != -1 || indexOfUserRequest != -1) {
       return next(new AppError("Your account already follow this user!", 400));
     }
 
-    user.following.push(req.body.idUser);
-    await user.save();
-    user = await User.findById(req.user.id);
+    //public
+    if (!userFollow.private) {
+      userRequest.following.push(req.params.id);
+
+      userFollow.followers.push(req.user.id);
+    } else {
+      userRequest.followingRequest.push(req.params.id);
+
+      userFollow.followerRequest.push(req.user.id);
+    }
+    await userRequest.save({ validateBeforeSave: false });
+    await userFollow.save({ validateBeforeSave: false });
+
+    userRequest = await User.findById(req.user.id);
     return res.status(200).json({
       status: "success",
       data: {
-        user,
+        user: userRequest,
       },
     });
   },
+
   unfollow: async function (req, res, next) {
-    let user = await User.findById(req.user.id);
-    let index = user.following.indexOf(req.body.idUser);
-    if (index === -1) {
+    let userCurrent = await User.findById(req.user.id);
+    let userUnfollow = await User.findById(req.params.id);
+
+    let indexOfUserCurrent = userUnfollow.followers.indexOf(req.user.id);
+    let indexOfUserUnfollow = userCurrent.following.indexOf(req.params.id);
+
+    if (indexOfUserCurrent === -1 || indexOfUserUnfollow === -1) {
       return next(
         new AppError("Your account haven't follow this user yet!", 400)
       );
     }
 
-    user.following.splice(index,1);
-    await user.save();
-    user = await User.findById(req.user.id);
+    userCurrent.following.splice(indexOfUserUnfollow, 1);
+    userUnfollow.followers.splice(indexOfUserCurrent, 1);
+
+    await userCurrent.save({ validateBeforeSave: false });
+    await userUnfollow.save({ validateBeforeSave: false });
+
+    userCurrent = await User.findById(req.user.id);
     return res.status(200).json({
       status: "success",
       data: {
-        user,
+        user: userCurrent,
+      },
+    });
+  },
+  removeFollower: async function (req, res, next) {
+    let userCurrent = await User.findById(req.user.id);
+    let userRemove = await User.findById(req.params.id);
+
+    let indexOfUserCurrent = userRemove.following.indexOf(req.user.id);
+    let indexOfUserRemove = userCurrent.followers.indexOf(req.params.id);
+
+    if (indexOfUserCurrent === -1 || indexOfUserRemove === -1) {
+      return next(new AppError("This account haven't follow you yet!", 400));
+    }
+
+    userCurrent.followers.splice(indexOfUserRemove, 1);
+    userRemove.following.splice(indexOfUserCurrent, 1);
+
+    await userCurrent.save({ validateBeforeSave: false });
+    await userRemove.save({ validateBeforeSave: false });
+
+    userCurrent = await User.findById(req.user.id);
+    return res.status(200).json({
+      status: "success",
+      data: {
+        user: userCurrent,
+      },
+    });
+  },
+
+  getUser: async function (req, res, next) {
+    let userCurrent = await User.findById(req.params.id)
+      .populate("followers")
+      .populate("following")
+      .populate("followingRequest")
+      .populate("followerRequest");
+    return res.status(200).json({
+      status: "success",
+      data: {
+        user: userCurrent,
       },
     });
   },
