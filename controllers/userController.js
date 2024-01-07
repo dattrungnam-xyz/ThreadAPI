@@ -37,7 +37,7 @@ let userController = {
     return res.status(200).json({
       status: "success",
       data: {
-        user: updatedUser,
+        user: user,
       },
     });
   },
@@ -143,7 +143,42 @@ let userController = {
       },
     });
   },
+  handleRequestFollow: async function (req, res, next) {
+    let currentUser = await User.findById(req.user.id);
+    let userRequest = await User.findById(req.params.id);
 
+    let indexOfUserRequest = currentUser.followerRequest.indexOf(req.params.id);
+    let indexOfCurrentUser = userRequest.followingRequest.indexOf(req.user.id);
+
+    if (indexOfUserRequest === -1 || indexOfCurrentUser === -1) {
+      return next(
+        new AppError("This user does't request follow your account!", 400)
+      );
+    }
+
+    currentUser.followerRequest.splice(indexOfUserRequest, 1);
+    userRequest.followingRequest.splice(indexOfCurrentUser, 1);
+
+    let decision = req.body.decision;
+
+    // if approved, add to follower and following
+    if (decision) {
+      currentUser.followers.push(req.params.id);
+      userRequest.following.push(req.user.id);
+    }
+
+    await currentUser.save();
+    await userRequest.save();
+
+    currentUser = await User.findById(req.user.id);
+
+    return res.status(200).json({
+      status: "success",
+      data: {
+        user: currentUser,
+      },
+    });
+  },
   getUser: async function (req, res, next) {
     let userCurrent = await User.findById(req.params.id)
       .populate("followers")

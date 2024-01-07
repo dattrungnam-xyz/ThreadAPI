@@ -126,6 +126,14 @@ userSchema.methods.passwordChangedAfter = async function (iat) {
   return false;
 };
 
+// userSchema.pre(/^find/, function (next) {
+//   this.populate("followers")
+//     .populate("following")
+//     .populate("followingRequest")
+//     .populate("followerRequest");
+//   next();
+// });
+
 const User = mongoose.model("User", userSchema);
 
 export { User };
