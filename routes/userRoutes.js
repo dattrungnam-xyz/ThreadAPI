@@ -10,6 +10,17 @@ router.get("/getUser/:id",userController.getUser)
 router.post("/login", authController.logIn);
 router.post("/signup", authController.signUp);
 
+
+router.patch(
+  "/updateProfile",
+  authController.protect,
+  userController.updateProfile
+);
+
+router.patch("/setPrivate", authController.protect, userController.setPrivate);
+
+
+
 router.post("/follow/:id", authController.protect, userController.follow);
 router.post("/unfollow/:id", authController.protect, userController.unfollow);
 router.post(

@@ -9,7 +9,7 @@ let userController = {
       }
     });
   },
-  editProfile: async function (req, res, next) {
+  updateProfile: async function (req, res, next) {
     if (req.body.password || req.body.passwordConfirm) {
       return next(
         new AppError(
@@ -41,7 +41,7 @@ let userController = {
       },
     });
   },
-  updatePrivateAccount: async function (req, res, next) {
+  setPrivate: async function (req, res, next) {
     let privateAccount = req.body.privateAccount;
 
     const user = await User.findByIdAndUpdate(
