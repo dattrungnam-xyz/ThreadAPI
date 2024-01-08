@@ -1,7 +1,41 @@
+import { v2 as cloudinary } from "cloudinary";
+import multer from "multer";
+import * as dotenv from "dotenv";
+dotenv.config();
+
+
 import { User } from "../models/userModel.js";
 import { AppError } from "../utils/appError.js";
 
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const storage = multer.memoryStorage();
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb(new AppError("Not an image! Please upload only images.", 400), false);
+  }
+};
+const upload = multer({
+  storage: storage,
+  fileFilter: multerFilter,
+});
+
 let userController = {
+  uploadPhotoCloudinary: async function (file) {
+    const res = await cloudinary.uploader.upload(file, {
+      resource_type: "auto",
+    });
+    return res;
+  },
+  uploadUserPhoto: upload.single("avatar"),
+
   filterBody: function (obj, ...excludeField) {
     Object.keys(obj).forEach((field) => {
       if (excludeField.includes(field)) {
@@ -18,7 +52,14 @@ let userController = {
         )
       );
     }
-
+    if (req.file) 
+    {
+      const b64 = Buffer.from(req.file.buffer).toString("base64");
+      let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+      const cldRes = await userController.uploadPhotoCloudinary(dataURI);
+      console.log(cldRes);
+      req.body.avatar = cldRes.url
+    }
     userController.filterBody(
       req.body,
       "password",
@@ -167,8 +208,8 @@ let userController = {
       userRequest.following.push(req.user.id);
     }
 
-    await currentUser.save();
-    await userRequest.save();
+    await currentUser.save({ validateBeforeSave: false });
+    await userRequest.save({ validateBeforeSave: false });
 
     currentUser = await User.findById(req.user.id);
 
