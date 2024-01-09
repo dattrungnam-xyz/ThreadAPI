@@ -217,7 +217,7 @@ let userController = {
     });
   },
   handleRequestFollow: async function (req, res, next) {
-    console.log(1);
+  
     let currentUser = await User.findById(req.user.id);
     let userRequest = await User.findById(req.params.id);
 
@@ -232,7 +232,7 @@ let userController = {
         )
       );
     }
-    console.log(2);
+  
     currentUser.followerRequest.splice(indexOfUserRequest, 1);
     userRequest.followingRequest.splice(indexOfCurrentUser, 1);
 
