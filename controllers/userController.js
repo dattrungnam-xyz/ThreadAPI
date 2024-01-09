@@ -3,7 +3,6 @@ import multer from "multer";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-
 import { User } from "../models/userModel.js";
 import { AppError } from "../utils/appError.js";
 
@@ -43,6 +42,40 @@ let userController = {
       }
     });
   },
+  getUserProfile: async function (req, res, next) {
+
+    let user = await User.findById(req.params.id)
+      .populate("followers")
+      .populate("following")
+      .populate("followingRequest")
+      .populate("followerRequest");
+
+      if(req.user.id == req.params.id)
+      {
+        return res.status(200).json({
+          status: "success",
+          data: {
+            user,
+          },
+        });
+      }
+      user.followerRequest = undefined;
+      user.followingRequest = undefined;
+      user.passwordChangedAt = undefined;
+    // if acc private and current user dont follow this user => filter user infor
+    if (user.private && !user.followers.includes(req.user.id)) {
+      user.email = undefined;
+      user.following = undefined;
+      user.followers = undefined;
+    }
+    return res.status(200).json({
+      status: "success",
+      data: {
+        user:user,
+      },
+    });
+  },
+
   updateProfile: async function (req, res, next) {
     if (req.body.password || req.body.passwordConfirm) {
       return next(
@@ -52,13 +85,12 @@ let userController = {
         )
       );
     }
-    if (req.file) 
-    {
+    if (req.file) {
       const b64 = Buffer.from(req.file.buffer).toString("base64");
       let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
       const cldRes = await userController.uploadPhotoCloudinary(dataURI);
       console.log(cldRes);
-      req.body.avatar = cldRes.url
+      req.body.avatar = cldRes.url;
     }
     userController.filterBody(
       req.body,
@@ -185,18 +217,22 @@ let userController = {
     });
   },
   handleRequestFollow: async function (req, res, next) {
+    console.log(1);
     let currentUser = await User.findById(req.user.id);
     let userRequest = await User.findById(req.params.id);
 
     let indexOfUserRequest = currentUser.followerRequest.indexOf(req.params.id);
     let indexOfCurrentUser = userRequest.followingRequest.indexOf(req.user.id);
 
-    if (indexOfUserRequest === -1 || indexOfCurrentUser === -1) {
+    if (indexOfUserRequest == -1 || indexOfCurrentUser == -1) {
       return next(
-        new AppError("This user does't request follow your account!", 400)
+        new AppError(
+          "This user does't request or already follow your account!",
+          400
+        )
       );
     }
-
+    console.log(2);
     currentUser.followerRequest.splice(indexOfUserRequest, 1);
     userRequest.followingRequest.splice(indexOfCurrentUser, 1);
 

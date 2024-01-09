@@ -4,10 +4,24 @@ import { userController } from "../controllers/userController.js";
 
 const router = express.Router();
 
+// test route
 router.get("/getUser/:id", userController.getUser);
+// end test route
+
+
 
 router.post("/login", authController.logIn);
 router.post("/signup", authController.signUp);
+
+
+
+router.get(
+  "/profile/:id",
+  authController.protect,
+  userController.getUserProfile
+);
+
+
 
 router.patch(
   "/updateProfile",

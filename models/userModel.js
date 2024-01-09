@@ -73,12 +73,19 @@ const userSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  followersCount: {
+    type: Number,
+  },
+
   following: [
     {
       type: mongoose.Schema.ObjectId,
       ref: "User",
     },
   ],
+  followingCount: {
+    type: Number,
+  },
   //dang yeu cau theo doi ai
   followingRequest: [
     {
@@ -125,12 +132,20 @@ userSchema.methods.passwordChangedAfter = async function (iat) {
   }
   return false;
 };
+userSchema.post(/^find/, function (doc) {
+  doc.followingCount = doc.following?.length || 0;
+  doc.followersCount = doc.followers?.length || 0;
+});
 
 // userSchema.pre(/^find/, function (next) {
-//   this.populate("followers")
-//     .populate("following")
-//     .populate("followingRequest")
-//     .populate("followerRequest");
+//   if (this._conditions._id) {
+//     // Populate only the necessary fields for a single user
+//     this.populate("followers")
+//       .populate("following")
+//       .populate("followingRequest")
+//       .populate("followerRequest");
+//   }
+
 //   next();
 // });
 

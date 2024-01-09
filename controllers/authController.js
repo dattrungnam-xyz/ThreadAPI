@@ -40,7 +40,7 @@ let authController = {
     let token = req.headers.authorization.split(" ")[1];
 
     const decoded = authController.decodeToken(token);
-    console.log(decoded);
+    // console.log(decoded);
 
     let user = await User.findById(decoded.id);
 
