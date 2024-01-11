@@ -1,6 +1,8 @@
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
+
 import { User } from "../models/userModel.js";
 import { AppError } from "../utils/appError.js";
-import jwt from "jsonwebtoken";
 
 let authController = {
   signToken: function (id) {
@@ -120,6 +122,43 @@ let authController = {
     await user.save();
 
     authController.createAndSendToken(user, 200, req, res);
+  },
+  forgotPassword: async function (req, res, next) {
+    let user = await User.findById(req.body.email);
+    if (!user) {
+      return next(new AppError("There is no user with email address.", 400));
+    }
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    user.passwordResetToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+    user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+    user.save({ validateBeforeSave: false });
+    // send Email (reset Token)
+
+  },
+  resetPassword: async function (req, res, next) {
+    let resetToken = req.params.resetToken 
+    let hashedToken = crypto.createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    let user = await User.find({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+
+    if(!user)
+    {
+      return next(new AppError("Token is invalid or has expired"),400);
+    }
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
   },
 };
 
