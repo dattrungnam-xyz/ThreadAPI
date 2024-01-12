@@ -5,12 +5,8 @@ dotenv.config();
 
 import { User } from "../models/userModel.js";
 import { AppError } from "../utils/appError.js";
+import { uploadPhotoCloudinary } from "../utils/uploadCloudinary.js";
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 const storage = multer.memoryStorage();
 
@@ -27,12 +23,7 @@ const upload = multer({
 });
 
 let userController = {
-  uploadPhotoCloudinary: async function (file) {
-    const res = await cloudinary.uploader.upload(file, {
-      resource_type: "auto",
-    });
-    return res;
-  },
+  
   uploadUserPhoto: upload.single("avatar"),
 
   filterBody: function (obj, ...excludeField) {
@@ -86,11 +77,8 @@ let userController = {
       );
     }
     if (req.file) {
-      const b64 = Buffer.from(req.file.buffer).toString("base64");
-      let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
-      const cldRes = await userController.uploadPhotoCloudinary(dataURI);
-      console.log(cldRes);
-      req.body.avatar = cldRes.url;
+      const url = await uploadPhotoCloudinary(req.file);
+      req.body.avatar = url;
     }
     userController.filterBody(
       req.body,

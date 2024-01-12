@@ -3,6 +3,8 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 
 import userRoute  from "./routes/userRoutes.js";
+import commentRoute from "./routes/commentRoutes.js";
+import postRoute  from "./routes/postRoutes.js";
 
 // import errrorController from "./controllers/errorController.js";
 
@@ -25,6 +27,8 @@ app.use(
 
 // app.use("/api/v1/tour", tourRoute);
 app.use("/api/v1/user", userRoute);
+app.use("/api/v1/post", postRoute);
+app.use("/api/v1/comment", commentRoute);
 
 // app.all("*", (req, res, next) => {
 //   next(new CustomError(`Can't find ${req.originalUrl} on this server!`, 404));
