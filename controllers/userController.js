@@ -6,20 +6,14 @@ dotenv.config();
 import { User } from "../models/userModel.js";
 import { AppError } from "../utils/appError.js";
 import { uploadPhotoCloudinary } from "../utils/uploadCloudinary.js";
+import { filterImage } from "../utils/multerFilter.js";
 
 
 const storage = multer.memoryStorage();
 
-const multerFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image")) {
-    cb(null, true);
-  } else {
-    cb(new AppError("Not an image! Please upload only images.", 400), false);
-  }
-};
 const upload = multer({
   storage: storage,
-  fileFilter: multerFilter,
+  fileFilter: filterImage,
 });
 
 let userController = {

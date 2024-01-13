@@ -8,29 +8,16 @@ import {
   uploadPhotoCloudinary,
   uploadVideoCloudinary,
 } from "../utils/uploadCloudinary.js";
+import { filterImageAndVideo } from "../utils/multerFilter.js";
 
 dotenv.config();
 
 
 const storage = multer.memoryStorage();
 
-const multerFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image") || file.mimetype.startsWith("video")) {
-    cb(null, true);
-  } else {
-    cb(
-      new AppError(
-        "Unsupported file type! Please upload only images or videos.",
-        400
-      ),
-      false
-    );
-  }
-};
-
 const upload = multer({
   storage: storage,
-  fileFilter: multerFilter,
+  fileFilter: filterImageAndVideo,
 });
 
 let postController = {
