@@ -5,6 +5,7 @@ import { postController } from "../controllers/postController.js";
 
 const router = express.Router();
 
-router.post("/", postController.uploadPostMedia, postController.createPost);
+router.post("/",authController.protect, postController.uploadPostMedia, postController.createPost);
+router.post("/1",postController.updatePost);
 
 export default router;

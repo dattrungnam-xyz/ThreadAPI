@@ -1,10 +1,11 @@
 import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
+import bodyParser from "body-parser";
 
-import userRoute  from "./routes/userRoutes.js";
+import userRoute from "./routes/userRoutes.js";
 import commentRoute from "./routes/commentRoutes.js";
-import postRoute  from "./routes/postRoutes.js";
+import postRoute from "./routes/postRoutes.js";
 
 // import errrorController from "./controllers/errorController.js";
 

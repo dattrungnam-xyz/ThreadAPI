@@ -33,6 +33,7 @@ const postSchema = new mongoose.Schema({
     },
   ],
   commentCount: Number,
+
 });
 
 postSchema.post(/^find/, function (doc) {
