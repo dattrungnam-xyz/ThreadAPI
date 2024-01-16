@@ -1,0 +1,37 @@
+doctype html
+html
+  head
+    meta(charset="UTF-8") 
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title="Reset Password"
+    link(rel="stylesheet" href="mailTemplate.css")
+  body
+    div(class="wrapper")
+      div(class="container")
+        header(class="header")
+          div(class="logo")
+            img(style="width: 30px; height: 30px",
+              src="https://seeklogo.com/images/T/threads-logo-E9BA734BF6-seeklogo.com.png?v=638252100960000000",
+              alt=""
+              )
+          
+      
+        div(class="content")
+          p(style="padding: 20px 0 20px") Hi guys
+          p(style="padding-bottom: 16px")
+          | We received a request to reset your Thread password. Enter the
+          | following link to reset your password:
+       
+          a(href="url") http:/// aaaaa
+          p(style=" padding-top: 16px")
+           span(style="font-weight: bold;") Didn't request this change?
+           br
+         
+          | If you didn't forget your password, please ignore this email!</p>
+      
+        footer
+          small(style="display:flex;align-items:center;justify-content: center; flex-direction:column; padding:20px 0")
+            p  This message was sent to url 
+        
+            p To help keep your account secure,
+            | please don't forward this email.        

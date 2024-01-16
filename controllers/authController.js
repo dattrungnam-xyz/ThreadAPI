@@ -3,6 +3,7 @@ import crypto from "crypto";
 
 import { User } from "../models/userModel.js";
 import { AppError } from "../utils/appError.js";
+import Email from "../utils/sendMail.js";
 
 let authController = {
   signToken: function (id) {
@@ -124,23 +125,45 @@ let authController = {
     authController.createAndSendToken(user, 200, req, res);
   },
   forgotPassword: async function (req, res, next) {
-    let user = await User.findById(req.body.email);
-    if (!user) {
-      return next(new AppError("There is no user with email address.", 400));
-    }
-    const resetToken = crypto.randomBytes(32).toString("hex");
-    user.passwordResetToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
-    user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
-    user.save({ validateBeforeSave: false });
-    // send Email (reset Token)
+    let user = await User.findOne({ email: req.body.email });
+    try {
+      if (!user) {
+        return next(new AppError("There is no user with email address.", 400));
+      }
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      user.passwordResetToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+      user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+      user.save({ validateBeforeSave: false });
+      // send Email (reset Token)
 
+      const resetURL = `${req.protocol}://${req.get(
+        "host"
+      )}/api/v1/users/resetPassword/${resetToken}`;
+
+      await new Email().sendMail();
+
+      res.status(200).json({
+        status: "success",
+        message: "Token sent to email!",
+      });
+    } catch (err) {
+      console.log(err)
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+      return next(
+        new AppError("There was an error sending the email. Try again later!"),
+        500
+      );
+    }
   },
   resetPassword: async function (req, res, next) {
-    let resetToken = req.params.resetToken 
-    let hashedToken = crypto.createHash("sha256")
+    let resetToken = req.params.resetToken;
+    let hashedToken = crypto
+      .createHash("sha256")
       .update(resetToken)
       .digest("hex");
 
@@ -149,16 +172,14 @@ let authController = {
       passwordResetExpires: { $gt: Date.now() },
     });
 
-    if(!user)
-    {
-      return next(new AppError("Token is invalid or has expired"),400);
+    if (!user) {
+      return next(new AppError("Token is invalid or has expired"), 400);
     }
     user.password = req.body.password;
     user.passwordConfirm = req.body.passwordConfirm;
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save();
-
   },
 };
 

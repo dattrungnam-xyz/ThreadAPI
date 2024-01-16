@@ -1,19 +1,25 @@
-import nodemailer from "nodemailer"; 
+import nodemailer from "nodemailer";
 import * as dotenv from "dotenv";
+import { htmlToText } from "nodemailer-html-to-text";
+import path from "path";
+import { fileURLToPath } from "url";
+import pug from "pug";
+// import { CustomError } from "./CustomError.js";
 
-import { CustomError } from "./CustomError.js";
+import { mailTemplate } from "../template/mailTemplate.js";
 
 dotenv.config();
 
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class Email {
-  constructor(options) {
+  constructor() {
     // this.from = options.from;
     // this.to = options.to;
     // this.subject = options.subject;
     // this.text = options.text;
-    this.options = options;
+    // this.options = options;
   }
 
   createTransport() {
@@ -26,18 +32,19 @@ class Email {
     });
   }
 
-  sendMail() {
-    // let mailOptions = {
-    //   form: this.from,
-    //   to: this.to,
-    //   subject: this.subject,
-    //   text: this.text,
-    // };
-    this.createTransport().sendMail(this.options, (error, info) => {
+  async sendMail() {
+   
+    let mailOptions = {
+      form: "dattrungnam",
+      to: "datvtrg0510@gmail.com",
+      subject: "this.subject",
+      // text: convert(html),
+      html: mailTemplate,
+    };
+    this.createTransport().use('compile', htmlToText()).sendMail(mailOptions, (error, info) => {
       if (error) {
         console.log(error);
-        return CustomError(500, error);
-       
+
       }
     });
   }
@@ -45,16 +52,3 @@ class Email {
 
 export default Email;
 
-// var mailOptions = {
-//   from: '"Dat Nguyen" <e29bechanh@gmail.com>',
-//   to: "datvtrg0510@gmail.com, dungtranvtrg@gmail.com",
-//   subject: "test",
-//   text: "Hey there, it’s our first message sent with Nodemailer ",
-// };
-
-// transport.sendMail(mailOptions, (error, info) => {
-//   if (error) {
-//     return console.log(error);
-//   }
-//   //console.log("Message sent: %s", info.messageId);
-// });
