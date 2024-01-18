@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { User } from "../models/userModel.js";
 import { AppError } from "../utils/appError.js";
 import Email from "../utils/sendMail.js";
+import { catchError } from "../utils/catchError.js";
 
 let authController = {
   signToken: function (id) {
@@ -31,7 +32,7 @@ let authController = {
     });
   },
 
-  protect: async function (req, res, next) {
+  protect: catchError(async function (req, res, next) {
     if (
       !req.headers.authorization ||
       !req.headers.authorization.startsWith("Bearer ")
@@ -67,33 +68,26 @@ let authController = {
 
     req.user = user;
     next();
-  },
-  signUp: async function (req, res, next) {
-    try {
-      let user = await User.create({
-        username: req.body.username,
-        password: req.body.password,
-        name: req.body.name,
-        email: req.body.email,
-        passwordConfirm: req.body.passwordConfirm,
-      });
+  }),
+  signUp: catchError(async function (req, res, next) {
+    let user = await User.create({
+      username: req.body.username,
+      password: req.body.password,
+      name: req.body.name,
+      email: req.body.email,
+      passwordConfirm: req.body.passwordConfirm,
+    });
 
-      user.password = undefined;
+    user.password = undefined;
 
-      return res.status(201).json({
-        status: "success",
-        data: {
-          user,
-        },
-      });
-    } catch (error) {
-      return res.status(400).json({
-        status: "error",
-        message: error.message,
-      });
-    }
-  },
-  logIn: async function (req, res, next) {
+    return res.status(201).json({
+      status: "success",
+      data: {
+        user,
+      },
+    });
+  }),
+  logIn: catchError(async function (req, res, next) {
     let email = req.body.email;
     let password = req.body.password;
     if (!email || !password) {
@@ -106,8 +100,8 @@ let authController = {
     }
 
     authController.createAndSendToken(user, 201, req, res);
-  },
-  updatePassword: async function (req, res, next) {
+  }),
+  updatePassword: catchError(async function (req, res, next) {
     let password = req.body.password;
     let newPassword = req.body.newPassword;
     let passwordConfirm = req.body.passwordConfirm;
@@ -123,7 +117,7 @@ let authController = {
     await user.save();
 
     authController.createAndSendToken(user, 200, req, res);
-  },
+  }),
   forgotPassword: async function (req, res, next) {
     let user = await User.findOne({ email: req.body.email });
     try {
@@ -150,7 +144,7 @@ let authController = {
         message: "Token sent to email!",
       });
     } catch (err) {
-      console.log(err)
+      console.log(err);
       user.passwordResetToken = undefined;
       user.passwordResetExpires = undefined;
       await user.save({ validateBeforeSave: false });
@@ -160,7 +154,7 @@ let authController = {
       );
     }
   },
-  resetPassword: async function (req, res, next) {
+  resetPassword: catchError(async function (req, res, next) {
     let resetToken = req.params.resetToken;
     let hashedToken = crypto
       .createHash("sha256")
@@ -180,7 +174,7 @@ let authController = {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save();
-  },
+  }),
 };
 
 export { authController };

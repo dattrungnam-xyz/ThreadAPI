@@ -4,10 +4,12 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import { User } from "../models/userModel.js";
-import { AppError } from "../utils/appError.js";
-import { uploadPhotoCloudinary } from "../utils/uploadCloudinary.js";
-import { filterImage } from "../utils/multerFilter.js";
 
+import { AppError } from "../utils/appError.js";
+
+import { filterImage } from "../utils/multerFilter.js";
+import { catchError } from "../utils/catchError.js";
+import { mediaController } from "./mediaController.js";
 
 const storage = multer.memoryStorage();
 
@@ -17,7 +19,6 @@ const upload = multer({
 });
 
 let userController = {
-  
   uploadUserPhoto: upload.single("avatar"),
 
   filterBody: function (obj, ...excludeField) {
@@ -27,26 +28,24 @@ let userController = {
       }
     });
   },
-  getUserProfile: async function (req, res, next) {
-
+  getUserProfile: catchError(async function (req, res, next) {
     let user = await User.findById(req.params.id)
       .populate("followers")
       .populate("following")
       .populate("followingRequest")
       .populate("followerRequest");
 
-      if(req.user.id == req.params.id)
-      {
-        return res.status(200).json({
-          status: "success",
-          data: {
-            user,
-          },
-        });
-      }
-      user.followerRequest = undefined;
-      user.followingRequest = undefined;
-      user.passwordChangedAt = undefined;
+    if (req.user.id == req.params.id) {
+      return res.status(200).json({
+        status: "success",
+        data: {
+          user,
+        },
+      });
+    }
+    user.followerRequest = undefined;
+    user.followingRequest = undefined;
+    user.passwordChangedAt = undefined;
     // if acc private and current user dont follow this user => filter user infor
     if (user.private && !user.followers.includes(req.user.id)) {
       user.email = undefined;
@@ -56,12 +55,12 @@ let userController = {
     return res.status(200).json({
       status: "success",
       data: {
-        user:user,
+        user: user,
       },
     });
-  },
+  }),
 
-  updateProfile: async function (req, res, next) {
+  updateProfile: catchError(async function (req, res, next) {
     if (req.body.password || req.body.passwordConfirm) {
       return next(
         new AppError(
@@ -71,8 +70,8 @@ let userController = {
       );
     }
     if (req.file) {
-      const url = await uploadPhotoCloudinary(req.file);
-      req.body.avatar = url;
+      let mediaId = await mediaController.createOne(req.file);
+      req.body.avatar = mediaId;
     }
     userController.filterBody(
       req.body,
@@ -95,8 +94,8 @@ let userController = {
         user: user,
       },
     });
-  },
-  setPrivate: async function (req, res, next) {
+  }),
+  setPrivate: catchError(async function (req, res, next) {
     let privateAccount = req.body.privateAccount;
 
     const user = await User.findByIdAndUpdate(
@@ -112,8 +111,8 @@ let userController = {
         user,
       },
     });
-  },
-  follow: async function (req, res, next) {
+  }),
+  follow: catchError(async function (req, res, next) {
     let userRequest = await User.findById(req.user.id);
     let userFollow = await User.findById(req.params.id);
 
@@ -144,9 +143,9 @@ let userController = {
         user: userRequest,
       },
     });
-  },
+  }),
 
-  unfollow: async function (req, res, next) {
+  unfollow: catchError(async function (req, res, next) {
     let userCurrent = await User.findById(req.user.id);
     let userUnfollow = await User.findById(req.params.id);
 
@@ -172,8 +171,8 @@ let userController = {
         user: userCurrent,
       },
     });
-  },
-  removeFollower: async function (req, res, next) {
+  }),
+  removeFollower: catchError(async function (req, res, next) {
     let userCurrent = await User.findById(req.user.id);
     let userRemove = await User.findById(req.params.id);
 
@@ -197,9 +196,8 @@ let userController = {
         user: userCurrent,
       },
     });
-  },
-  handleRequestFollow: async function (req, res, next) {
-  
+  }),
+  handleRequestFollow: catchError(async function (req, res, next) {
     let currentUser = await User.findById(req.user.id);
     let userRequest = await User.findById(req.params.id);
 
@@ -214,7 +212,7 @@ let userController = {
         )
       );
     }
-  
+
     currentUser.followerRequest.splice(indexOfUserRequest, 1);
     userRequest.followingRequest.splice(indexOfCurrentUser, 1);
 
@@ -237,7 +235,7 @@ let userController = {
         user: currentUser,
       },
     });
-  },
+  }),
   getUser: async function (req, res, next) {
     let userCurrent = await User.findById(req.params.id)
       .populate("followers")

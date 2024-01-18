@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import validator from "validator";
 
-
 const postSchema = new mongoose.Schema({
   authorPost: {
     type: mongoose.Schema.ObjectId,
@@ -16,7 +15,8 @@ const postSchema = new mongoose.Schema({
   },
   media: [
     {
-      type: String,
+      type: mongoose.Schema.ObjectId,
+      ref: "Media",
     },
   ],
   like: [
@@ -33,9 +33,11 @@ const postSchema = new mongoose.Schema({
     },
   ],
   commentCount: Number,
-
 });
-
+postSchema.pre(/^find/, function (next) {
+  this.populate("media");
+  next();
+});
 postSchema.post(/^find/, function (doc) {
   doc.likeCount = doc.like?.length || 0;
   doc.commentCount = doc.comment?.length || 0;

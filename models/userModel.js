@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
 
+
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -21,8 +23,8 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, "Please provide a valid email!"],
   },
   avatar: {
-    type: String,
-    default: "default.jpg",
+    type: mongoose.Schema.ObjectId,
+    ref: "Media",
   },
   password: {
     type: String,
@@ -137,17 +139,10 @@ userSchema.post(/^find/, function (doc) {
   doc.followersCount = doc.followers?.length || 0;
 });
 
-// userSchema.pre(/^find/, function (next) {
-//   if (this._conditions._id) {
-//     // Populate only the necessary fields for a single user
-//     this.populate("followers")
-//       .populate("following")
-//       .populate("followingRequest")
-//       .populate("followerRequest");
-//   }
-
-//   next();
-// });
+userSchema.pre(/^find/, function (next) {
+  this.populate("avatar");
+  next();
+});
 
 const User = mongoose.model("User", userSchema);
 

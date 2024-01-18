@@ -16,7 +16,7 @@ async function uploadPhotoCloudinary(file) {
   const res = await cloudinary.uploader.upload(dataURI, {
     resource_type: "auto",
   });
-  return res.url;
+  return { url: res.url, type: "photo" };
 }
 
 async function uploadVideoCloudinary(file) {
@@ -31,7 +31,7 @@ async function uploadVideoCloudinary(file) {
         )
         .end(file.buffer);
     });
-    return uploadResult.url;
+    return { url: uploadResult.url, type: "video" };
   } catch (error) {
     console.error(error);
   }

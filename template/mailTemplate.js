@@ -1,4 +1,5 @@
-let mailTemplate = `<!DOCTYPE html>
+function createMailTemplate(url, email) {
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -50,7 +51,7 @@ let mailTemplate = `<!DOCTYPE html>
             We received a request to reset your Thread password. Enter the
             following link to reset your password:
           </p>
-          <a href="url">http:/// aaaaa</a>
+          <a href="${url}">${url}</a>
           <p style=" padding-top: 16px">
            <span style="font-weight: bold;">Didn't request this change?</span> <br>
          
@@ -58,18 +59,17 @@ let mailTemplate = `<!DOCTYPE html>
         </div>
         <footer>
           <small style="padding:20px 0">
-            <div style="padding-top:20px">  This message was sent to url 
+            <div style="padding-top:20px">  This message was sent to ${email} 
             </div>
                 <div>
                     To help keep your account secure,
                     please don't forward this email.
                 </div>
-
-          
           </small>
         </footer>
       </div>
     </div>
   </body>
 </html>`;
-export { mailTemplate };
+}
+export { createMailTemplate };

@@ -2,13 +2,14 @@ import { v2 as cloudinary } from "cloudinary";
 import * as dotenv from "dotenv";
 import multer from "multer";
 
+import { mediaController } from "./mediaController.js";
+
 import { AppError } from "../utils/appError.js";
 import { Post } from "../models/postModel.js";
 import { Comment } from "../models/commentModel.js";
-import {
-  uploadPhotoCloudinary,
-  uploadVideoCloudinary,
-} from "../utils/uploadCloudinary.js";
+
+
+import { catchError } from "../utils/catchError.js";
 import { filterImageAndVideo } from "../utils/multerFilter.js";
 
 dotenv.config();
@@ -22,18 +23,11 @@ const upload = multer({
 
 let postController = {
   uploadPostMedia: upload.array("files", 10),
-  createPost: async function (req, res, next) {
+  createPost: catchError(async function (req, res, next) {
     req.body.authorPost = req.user.id;
     let files = req.files;
     if (files) {
-      let multiPromise = files.map((file) => {
-        if (file.mimetype.startsWith("image")) {
-          return uploadPhotoCloudinary(file);
-        } else if (file.mimetype.startsWith("video")) {
-          return uploadVideoCloudinary(file);
-        }
-      });
-      req.body.media = await Promise.all(multiPromise);
+      req.body.media = await mediaController.createMany(files);
     }
     const post = await Post.create(req.body);
     return res.status(200).json({
@@ -42,8 +36,8 @@ let postController = {
         post,
       },
     });
-  },
-  updatePost: async function (req, res, next) {
+  }),
+  updatePost: catchError(async function (req, res, next) {
     let post = await Post.findById(req.params.idPost);
     // let post = await Post.findById("65a2a98211e9a8fa71adb999");
     if (!post) {
@@ -57,21 +51,14 @@ let postController = {
     //index of Image
 
     if (req.body.deleteMedia) {
-      req.body.deleteMedia = req.body.deleteMedia.sort((a, b) => b - a);
-      req.body.deleteMedia.forEach((index) => {
+      req.body.deleteMedia.forEach((mediaId) => {
+        let index = post.media.indexOf(mediaId);
         post.media.splice(index, 1);
       });
     }
     if (req.files) {
-      let multiPromise = files.map((file) => {
-        if (file.mimetype.startsWith("image")) {
-          return uploadPhotoCloudinary(file);
-        } else if (file.mimetype.startsWith("video")) {
-          return uploadVideoCloudinary(file);
-        }
-      });
-      let updateMedia = await Promise.all(multiPromise);
-      post.media = post.media.concat(updateMedia);
+      let listUpdateMediaId = await mediaController.createMany(req.files);
+      post.media = post.media.concat(listUpdateMediaId);
     }
 
     for (let [key, value] of Object.entries(req.body)) {
@@ -88,8 +75,8 @@ let postController = {
         post,
       },
     });
-  },
-  deletePost: async function (req, res, next) {
+  }),
+  deletePost: catchError(async function (req, res, next) {
     let post = await Post.findById(req.params.idPost);
     if (!post) {
       return next(new AppError("No post found with that ID", 404));
@@ -108,8 +95,8 @@ let postController = {
       status: "success",
       data: null,
     });
-  },
-  likePost: async function (req, res, next) {
+  }),
+  likePost: catchError(async function (req, res, next) {
     let post = await Post.findById(req.params.idPost);
     if (!post) {
       return next(new AppError("No post found with that ID", 404));
@@ -126,8 +113,8 @@ let postController = {
         post,
       },
     });
-  },
-  unlikePost: async function (req, res, next) {
+  }),
+  unlikePost: catchError(async function (req, res, next) {
     let post = await Post.findById(req.params.idPost);
     if (!post) {
       return next(new AppError("No post found with that ID", 404));
@@ -146,7 +133,7 @@ let postController = {
         post,
       },
     });
-  }
+  }),
 };
 
 export { postController };

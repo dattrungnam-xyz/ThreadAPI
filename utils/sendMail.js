@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 import pug from "pug";
 // import { CustomError } from "./CustomError.js";
 
-import { mailTemplate } from "../template/mailTemplate.js";
+import { createMailTemplate } from "../template/mailTemplate.js";
 
 dotenv.config();
 
@@ -33,11 +33,11 @@ class Email {
   }
 
   async sendMail() {
-   
+    let mailTemplate = createMailTemplate()
     let mailOptions = {
       form: "dattrungnam",
       to: "datvtrg0510@gmail.com",
-      subject: "this.subject",
+      subject: "Reset Password",
       // text: convert(html),
       html: mailTemplate,
     };
