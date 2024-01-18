@@ -137,7 +137,7 @@ let authController = {
         "host"
       )}/api/v1/users/resetPassword/${resetToken}`;
 
-      await new Email().sendMail();
+      await new Email({ url: resetURL, email: user.email }).sendMail();
 
       res.status(200).json({
         status: "success",

@@ -14,12 +14,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 class Email {
-  constructor() {
-    // this.from = options.from;
-    // this.to = options.to;
-    // this.subject = options.subject;
-    // this.text = options.text;
-    // this.options = options;
+  constructor({ url, email }) {
+    this.url = url;
+    this.email = email;
   }
 
   createTransport() {
@@ -33,22 +30,22 @@ class Email {
   }
 
   async sendMail() {
-    let mailTemplate = createMailTemplate()
+    let mailTemplate = createMailTemplate(this.url, this.email);
     let mailOptions = {
-      form: "dattrungnam",
-      to: "datvtrg0510@gmail.com",
+      form: "datvtrg@gmail.com",
+      to: this.email,
       subject: "Reset Password",
       // text: convert(html),
       html: mailTemplate,
     };
-    this.createTransport().use('compile', htmlToText()).sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log(error);
-
-      }
-    });
+    this.createTransport()
+      .use("compile", htmlToText())
+      .sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log(error);
+        }
+      });
   }
 }
 
 export default Email;
-
