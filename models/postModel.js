@@ -1,39 +1,46 @@
 import mongoose from "mongoose";
 import validator from "validator";
 
-const postSchema = new mongoose.Schema({
-  authorPost: {
-    type: mongoose.Schema.ObjectId,
-    ref: "User",
-  },
-  createAt: {
-    type: Date,
-    default: Date.now(),
-  },
-  content: {
-    type: String,
-  },
-  media: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: "Media",
-    },
-  ],
-  like: [
-    {
+const postSchema = new mongoose.Schema(
+  {
+    authorPost: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
     },
-  ],
-  likeCount: Number,
-  comment: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: "Comment",
+    createAt: {
+      type: Date,
+      default: Date.now(),
     },
-  ],
-  commentCount: Number,
+    content: {
+      type: String,
+    },
+    media: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Media",
+      },
+    ],
+
+    likeCount: Number,
+    commentCount: Number,
+  },
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
+
+postSchema.virtual("like", {
+  ref: "Like",
+  foreignField: "idPost",
+  localField: "_id",
 });
+postSchema.virtual("comments", {
+  ref: "Comment",
+  foreignField: "idPost",
+  localField: "_id",
+});
+
 postSchema.pre(/^find/, function (next) {
   this.populate("media");
   next();

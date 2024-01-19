@@ -8,7 +8,6 @@ import { AppError } from "../utils/appError.js";
 import { Post } from "../models/postModel.js";
 import { Comment } from "../models/commentModel.js";
 
-
 import { catchError } from "../utils/catchError.js";
 import { filterImageAndVideo } from "../utils/multerFilter.js";
 
@@ -30,7 +29,7 @@ let postController = {
       req.body.media = await mediaController.createMany(files);
     }
     const post = await Post.create(req.body);
-    return res.status(200).json({
+    return res.status(201).json({
       status: "success",
       data: {
         post,
@@ -38,7 +37,7 @@ let postController = {
     });
   }),
   updatePost: catchError(async function (req, res, next) {
-    let post = await Post.findById(req.params.idPost);
+    let post = await Post.findById(req.params.id);
     // let post = await Post.findById("65a2a98211e9a8fa71adb999");
     if (!post) {
       return next(new AppError("No post found with that ID", 404));
@@ -96,37 +95,24 @@ let postController = {
       data: null,
     });
   }),
-  likePost: catchError(async function (req, res, next) {
-    let post = await Post.findById(req.params.idPost);
-    if (!post) {
-      return next(new AppError("No post found with that ID", 404));
-    }
-    let index = post.like.indexOf(req.user.id);
-    if (index != -1) {
-      return next(new AppError("Your account already like this post.", 400));
-    }
-    post.like.push(req.user.id);
-    post.save();
-    return res.status(200).json({
-      status: "success",
-      data: {
-        post,
-      },
-    });
-  }),
-  unlikePost: catchError(async function (req, res, next) {
-    let post = await Post.findById(req.params.idPost);
-    if (!post) {
-      return next(new AppError("No post found with that ID", 404));
-    }
-    let index = post.like.indexOf(req.user.id);
-    if (index == -1) {
-      return next(
-        new AppError("Your account haven't like this post yet.", 400)
-      );
-    }
-    post.like.splice(index, 1);
-    post.save();
+  getPost: catchError(async function (req, res, next) {
+    let post = await Post.findById(req.params.id)
+      .populate({
+        path: "like",
+        select: "-__v ",
+        populate: {
+          path: "idUser",
+          select: "_id name avatar",
+        },
+      })
+      .populate({
+        path: "comments",
+        select: "-__v",
+        populate: {
+          path: "idUser",
+          select: "_id name avatar",
+        },
+      });
     return res.status(200).json({
       status: "success",
       data: {

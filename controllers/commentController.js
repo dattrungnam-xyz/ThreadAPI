@@ -1,9 +1,14 @@
-import { AppError } from "../utils/appError.js";
+import { Comment } from "../models/commentModel.js";
+import { handleFactory } from "./handleFactory.js";
 
 let commentController = {
-  createComment: async function (req, res, next) {},
-  updateComment: async function (req, res, next) {},
-  deleteComment: async function (req, res, next) {},
+  createComment: handleFactory.createOne(Comment),
+  updateComment: handleFactory.updateOne(Comment),
+  deleteComment: handleFactory.deleteOne(Comment),
+  setIdUser: (req, res, next) => {
+    req.body.idUser = req.user.id;
+    next();
+  },
 };
 
 export { commentController };

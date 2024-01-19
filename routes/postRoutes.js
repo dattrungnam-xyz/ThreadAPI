@@ -2,16 +2,22 @@ import express from "express";
 import { authController } from "../controllers/authController.js";
 import { postController } from "../controllers/postController.js";
 
-
 const router = express.Router();
 
-router.post("/",authController.protect, postController.uploadPostMedia, postController.createPost);
+router.post(
+  "/",
+  authController.protect,
+  postController.uploadPostMedia,
+  postController.createPost
+);
+
+router.get("/:id", postController.getPost);
 router.patch(
-  "/updatePost/:idPost",
+  "/updatePost/:id",
   authController.protect,
   postController.uploadPostMedia,
   postController.updatePost
 );
-router.post("/1",postController.updatePost);
+router.post("/1", postController.updatePost);
 
 export default router;

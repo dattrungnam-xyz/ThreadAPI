@@ -4,7 +4,7 @@ import { htmlToText } from "nodemailer-html-to-text";
 import path from "path";
 import { fileURLToPath } from "url";
 import pug from "pug";
-// import { CustomError } from "./CustomError.js";
+
 
 import { createMailTemplate } from "../template/mailTemplate.js";
 
@@ -32,10 +32,9 @@ class Email {
   async sendMail() {
     let mailTemplate = createMailTemplate(this.url, this.email);
     let mailOptions = {
-      form: "datvtrg@gmail.com",
+      form: "datvtrg0510@gmail.com",
       to: this.email,
       subject: "Reset Password",
-      // text: convert(html),
       html: mailTemplate,
     };
     this.createTransport()

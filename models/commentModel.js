@@ -1,12 +1,11 @@
 import mongoose from "mongoose";
-import validator from "validator";
 
 const commentSchema = new mongoose.Schema({
-  postId: {
+  idPost: {
     type: mongoose.Schema.ObjectId,
     ref: "Post",
   },
-  authorComment: {
+  idUser: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
   },
@@ -22,18 +21,16 @@ const commentSchema = new mongoose.Schema({
       type: String,
     },
   ],
-  like: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: "User",
-    },
-  ],
   likeCount: Number,
 });
 
+commentSchema.virtual("like", {
+  ref: "Like",
+  foreignField: "idComment",
+  localField: "_id",
+});
 commentSchema.post(/^find/, function (doc) {
   doc.likeCount = doc.like?.length || 0;
- 
 });
 
 const Comment = mongoose.model("Comment", commentSchema);

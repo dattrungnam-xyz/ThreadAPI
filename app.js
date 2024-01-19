@@ -8,9 +8,8 @@ import { fileURLToPath } from "url";
 import userRoute from "./routes/userRoutes.js";
 import commentRoute from "./routes/commentRoutes.js";
 import postRoute from "./routes/postRoutes.js";
+import likeRoute from "./routes/likeRoutes.js";
 import { errorController } from "./controllers/errorController.js";
-
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,6 +32,7 @@ app.use(
 // app.use("/api/v1/tour", tourRoute);
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/post", postRoute);
+app.use("/api/v1/like", likeRoute);
 app.use("/api/v1/comment", commentRoute);
 
 app.all("*", (req, res, next) => {
