@@ -9,6 +9,8 @@ import userRoute from "./routes/userRoutes.js";
 import commentRoute from "./routes/commentRoutes.js";
 import postRoute from "./routes/postRoutes.js";
 import likeRoute from "./routes/likeRoutes.js";
+import notificationRoute from "./routes/notificationRoutes.js";
+import testRoute from "./routes/testRoutes.js";
 import { errorController } from "./controllers/errorController.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -34,6 +36,8 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/post", postRoute);
 app.use("/api/v1/like", likeRoute);
 app.use("/api/v1/comment", commentRoute);
+app.use("/api/v1/notification", notificationRoute);
+app.use("/api/v1/test", testRoute);
 
 app.all("*", (req, res, next) => {
   next(new CustomError(`Can't find ${req.originalUrl} on this server!`, 404));

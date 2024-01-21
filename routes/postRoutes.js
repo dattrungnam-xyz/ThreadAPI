@@ -18,6 +18,6 @@ router.patch(
   postController.uploadPostMedia,
   postController.updatePost
 );
-router.post("/1", postController.updatePost);
+
 
 export default router;

@@ -9,6 +9,10 @@ const mediaModel = new mongoose.Schema({
   url: {
     type: String,
   },
+  createAt: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 
 const Media = mongoose.model("Media", mediaModel);

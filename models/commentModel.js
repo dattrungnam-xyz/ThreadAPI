@@ -4,10 +4,12 @@ const commentSchema = new mongoose.Schema({
   idPost: {
     type: mongoose.Schema.ObjectId,
     ref: "Post",
+    required: [true, "ID post can not be empty."],
   },
   idUser: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
+    required: [true, "ID user can not be empty."],
   },
   createAt: {
     type: Date,
@@ -15,6 +17,7 @@ const commentSchema = new mongoose.Schema({
   },
   content: {
     type: String,
+    required: [true, "Content can not be empty."],
   },
   media: [
     {

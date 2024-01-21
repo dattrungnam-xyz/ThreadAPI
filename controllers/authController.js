@@ -27,7 +27,7 @@ let authController = {
       status: "success",
       token,
       data: {
-        data: user,
+        user,
       },
     });
   },

@@ -23,7 +23,7 @@ const upload = multer({
 let postController = {
   uploadPostMedia: upload.array("files", 10),
   createPost: catchError(async function (req, res, next) {
-    req.body.authorPost = req.user.id;
+    req.body.idUser = req.user.id;
     let files = req.files;
     if (files) {
       req.body.media = await mediaController.createMany(files);
@@ -42,7 +42,7 @@ let postController = {
     if (!post) {
       return next(new AppError("No post found with that ID", 404));
     }
-    if (post.authorPost != req.user.id) {
+    if (post.idUser != req.user.id) {
       return next(
         new AppError("You don't have permission to edit this post.", 400)
       );
@@ -80,16 +80,16 @@ let postController = {
     if (!post) {
       return next(new AppError("No post found with that ID", 404));
     }
-    if (post.authorPost != req.user.id) {
+    if (post.idUser != req.user.id) {
       return next(
         new AppError("You don't have permission to edit this post.", 400)
       );
     }
 
     const doc = await Post.findByIdAndDelete(req.params.idPost);
-    await Comment.deleteMany({
-      postId: req.params.idPost,
-    });
+    // await Comment.deleteMany({
+    //   postId: req.params.idPost,
+    // });
     res.status(204).json({
       status: "success",
       data: null,

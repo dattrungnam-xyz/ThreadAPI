@@ -5,7 +5,7 @@ const likeSchema = new mongoose.Schema({
   idUser: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
-    required: [true, "Id user can not be empty."],
+    required: [true, "ID user can not be empty."],
   },
   idPost: {
     type: mongoose.Schema.ObjectId,
@@ -14,6 +14,10 @@ const likeSchema = new mongoose.Schema({
   idComment: {
     type: mongoose.Schema.ObjectId,
     ref: "Comment",
+  },
+  createAt: {
+    type: Date,
+    default: Date.now(),
   },
 });
 

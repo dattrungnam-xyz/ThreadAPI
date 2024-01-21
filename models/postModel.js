@@ -3,9 +3,10 @@ import validator from "validator";
 
 const postSchema = new mongoose.Schema(
   {
-    authorPost: {
+    idUser: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
+      required: [true, "ID user can not be empty."],
     },
     createAt: {
       type: Date,

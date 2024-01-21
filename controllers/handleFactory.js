@@ -42,6 +42,8 @@ let handleFactory = {
         data: null,
       });
     }),
+
+  //example :let results = await OrderModel.find().populate([{path: 'user', select: 'firstname'}, {path: 'meal', select: 'name'}]);
   getOne: (Model, popOptions) =>
     catchError(async (req, res, next) => {
       let query = Model.findById(req.params.id);
