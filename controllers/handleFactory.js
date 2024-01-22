@@ -1,5 +1,6 @@
 import { catchError } from "../utils/catchError.js";
 import { AppError } from "../utils/appError.js";
+import { apiFeatures } from "../utils/apiFeatures.js";
 
 let handleFactory = {
   createOne: (Model) =>
@@ -56,6 +57,23 @@ let handleFactory = {
 
       res.status(200).json({
         status: "success",
+        data: {
+          data: doc,
+        },
+      });
+    }),
+  getAll: (Model, popOptions = {}) =>
+    catchError(async (req, res, next) => {
+      let apiFeature = new apiFeatures(Model.find(), req.query)
+        .filter()
+        .population(popOptions)
+        .sort()
+        .limitFields()
+        .pagination();
+      let doc = await apiFeature.query;
+      return res.status(200).json({
+        status: "success",
+        results: doc.length,
         data: {
           data: doc,
         },

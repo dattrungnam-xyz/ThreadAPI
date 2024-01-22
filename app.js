@@ -12,6 +12,7 @@ import likeRoute from "./routes/likeRoutes.js";
 import notificationRoute from "./routes/notificationRoutes.js";
 import testRoute from "./routes/testRoutes.js";
 import { errorController } from "./controllers/errorController.js";
+import { AppError } from "./utils/appError.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,7 +41,7 @@ app.use("/api/v1/notification", notificationRoute);
 app.use("/api/v1/test", testRoute);
 
 app.all("*", (req, res, next) => {
-  next(new CustomError(`Can't find ${req.originalUrl} on this server!`, 404));
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
 app.use(errorController.handleError);

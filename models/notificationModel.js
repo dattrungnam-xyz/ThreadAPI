@@ -18,7 +18,7 @@ const notificationSchema = new mongoose.Schema({
       "acceptFollow",
       "follow",
       "mention",
-      "aleart",
+      "alert",
       "like",
       "comment",
       "repost",

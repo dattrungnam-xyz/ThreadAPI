@@ -43,6 +43,10 @@ class apiFeatures {
 
     return this;
   }
+  population(options) {
+    this.query = this.query.populate(options);
+    return this;
+  }
 }
 
 export { apiFeatures };
