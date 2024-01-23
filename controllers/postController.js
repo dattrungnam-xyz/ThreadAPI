@@ -10,6 +10,7 @@ import { Comment } from "../models/commentModel.js";
 
 import { catchError } from "../utils/catchError.js";
 import { filterImageAndVideo } from "../utils/multerFilter.js";
+import { User } from "../models/userModel.js";
 
 dotenv.config();
 
@@ -117,6 +118,21 @@ let postController = {
       status: "success",
       data: {
         post,
+      },
+    });
+  }),
+  getAllPost: catchError(async function (req, res, next) {
+    let user = await User.findById(req.user.id);
+    let posts = await Post.find({
+      idUser: {
+        $in: [...user.following, user.id],
+      },
+    }).sort("-createAt");
+    return res.status(200).json({
+      status: "success",
+      result: posts.length,
+      data: {
+        data: posts,
       },
     });
   }),

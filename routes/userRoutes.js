@@ -5,7 +5,7 @@ import { userController } from "../controllers/userController.js";
 const router = express.Router();
 
 // test route
-router.get("/getUser/:id", userController.getUser);
+router.get("/:id", userController.getUser);
 // end test route
 
 

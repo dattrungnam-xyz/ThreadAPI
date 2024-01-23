@@ -10,6 +10,7 @@ router.post(
   postController.uploadPostMedia,
   postController.createPost
 );
+router.get("/", authController.protect, postController.getAllPost);
 
 router.get("/:id", postController.getPost);
 router.patch(
@@ -18,6 +19,5 @@ router.patch(
   postController.uploadPostMedia,
   postController.updatePost
 );
-
 
 export default router;

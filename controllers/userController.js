@@ -238,10 +238,23 @@ let userController = {
   }),
   getUser: async function (req, res, next) {
     let userCurrent = await User.findById(req.params.id)
-      .populate("followers")
-      .populate("following")
-      .populate("followingRequest")
-      .populate("followerRequest");
+      .populate({
+        path: "followers",
+        select: " id avatar name",
+      })
+      .populate({
+        path: "following",
+        select: " id avatar name",
+      })
+      .populate({
+        path: "followingRequest",
+        select: " id avatar name",
+      })
+      .populate({
+        path: "followerRequest",
+        select: " id avatar name",
+      });
+
     return res.status(200).json({
       status: "success",
       data: {
